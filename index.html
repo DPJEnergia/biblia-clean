@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bíblia Clean</title>
+<meta name="theme-color" content="#14263a">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#f7f3ea;--card:#fffdf8;--tx:#23201a;--dim:#7a7260;--ac:#a9791c;--bar:#14263a;--bt:#f2e8d0;--ln:#e6dfcc;--hl:#f6e08a}
+[data-t=dark]{--bg:#10151c;--card:#171e28;--tx:#dfe3e8;--dim:#8793a1;--ac:#e0b45a;--bar:#0b1016;--bt:#e9dfc6;--ln:#273140;--hl:#5b4a14}
+[data-t=sepia]{--bg:#e9dcc0;--card:#f1e6cc;--tx:#3b2f1c;--dim:#7b6a4a;--ac:#8a5a14;--bar:#4a3a22;--bt:#f1e6cc;--ln:#d6c6a0;--hl:#e8c870}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--tx);font-family:Georgia,'Times New Roman',serif;display:flex;flex-direction:column}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+header{background:var(--bar);color:var(--bt);display:flex;align-items:center;gap:6px;padding:8px 10px;padding-top:max(8px,env(safe-area-inset-top));font-family:system-ui,sans-serif}
+header .ref{flex:1;font-size:17px;font-weight:600;text-align:left;padding:8px 10px;border-radius:8px}
+header .ref:hover,header .ib:hover{background:rgba(255,255,255,.1)}
+.ib{width:42px;height:42px;border-radius:8px;font-size:19px;color:var(--bt)}
+main{flex:1;overflow-y:auto;scroll-behavior:smooth}
+.read{max-width:720px;margin:0 auto;padding:22px 20px 110px;line-height:1.75;font-size:var(--fs,20px)}
+.read h2{font-size:1.5em;margin:0 0 18px;color:var(--ac);letter-spacing:.02em}
+.v{display:block;padding:3px 6px;margin:0 -6px;border-radius:6px;cursor:pointer}
+.v sup{font:600 .6em system-ui;color:var(--ac);margin-right:5px;vertical-align:.45em}
+.v.h{background:var(--hl)}
+.v.sel{outline:2px solid var(--ac)}
+nav.pg{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-between;padding:10px 16px calc(10px + env(safe-area-inset-bottom));pointer-events:none}
+nav.pg button{pointer-events:auto;background:var(--bar);color:var(--bt);width:52px;height:52px;border-radius:50%;font-size:22px;box-shadow:0 3px 10px #0004}
+.sheet{position:fixed;inset:0;background:var(--bg);z-index:5;display:none;flex-direction:column;font-family:system-ui,sans-serif}
+.sheet.on{display:flex}
+.sheet .top{background:var(--bar);color:var(--bt);display:flex;align-items:center;gap:8px;padding:8px 10px;padding-top:max(8px,env(safe-area-inset-top))}
+.sheet .top b{flex:1;font-size:17px}
+.sheet .body{flex:1;overflow-y:auto;padding:14px;max-width:760px;width:100%;margin:0 auto}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tabs button{flex:1;padding:10px;border-radius:10px;background:var(--card);border:1px solid var(--ln);font-weight:600}
+.tabs button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.grid button{padding:12px 8px;border-radius:10px;background:var(--card);border:1px solid var(--ln);text-align:center}
+.grid.num{grid-template-columns:repeat(auto-fill,minmax(54px,1fr))}
+.grid button:hover{border-color:var(--ac)}
+h3{margin:18px 0 8px;color:var(--dim);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+input[type=search]{width:100%;padding:14px;border-radius:12px;border:1px solid var(--ln);background:var(--card);color:var(--tx);font-size:16px}
+.res{padding:12px;border-bottom:1px solid var(--ln);cursor:pointer;font-family:Georgia,serif;line-height:1.5}
+.res b{display:block;color:var(--ac);font:600 13px system-ui}
+mark{background:var(--hl);color:inherit;border-radius:3px}
+.row{display:flex;align-items:center;gap:10px;margin:12px 0}
+.row span{flex:1}
+.row button{padding:9px 16px;border-radius:10px;background:var(--card);border:1px solid var(--ln)}
+.row button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom));background:var(--bar);color:var(--bt);border-radius:14px;padding:6px;display:none;gap:2px;font-family:system-ui;box-shadow:0 4px 16px #0006;z-index:4}
+.bar.on{display:flex}
+.bar button{padding:10px 14px;border-radius:10px;font-size:14px;color:var(--bt)}
+.bar button:hover{background:rgba(255,255,255,.12)}
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--bar);color:var(--bt);padding:9px 16px;border-radius:20px;font:14px system-ui;opacity:0;transition:.25s;pointer-events:none;z-index:9}
+.toast.on{opacity:1}
+.empty{color:var(--dim);text-align:center;padding:30px 0;font-family:system-ui}
+.seg{display:flex;background:rgba(255,255,255,.1);border-radius:10px;padding:3px}
+.seg button{padding:7px 12px;border-radius:8px;font:600 14px system-ui;color:var(--bt)}
+.seg button.on{background:var(--ac);color:#fff}
+header .ref{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:0}
+.ib{width:38px}
+.hn{display:flex;gap:12px;align-items:center}
+.hn i{font:700 13px system-ui;color:#fff;background:var(--ac);border-radius:8px;min-width:46px;text-align:center;padding:5px 4px;font-style:normal}
+.hn span{flex:1}
+.hymn h2{margin-bottom:6px}
+.hymn .st{white-space:pre-line;margin:0 0 18px}
+.hymn .co{white-space:pre-line;margin:0 0 18px;padding:10px 14px;border:1px solid var(--ln);background:var(--card);border-radius:10px;font-style:italic}
+.hymn .lb{font:700 12px system-ui;color:var(--ac);letter-spacing:.08em;margin-bottom:4px;font-style:normal}
+.ply{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0 22px;font-family:system-ui}
+.ply button{padding:10px 16px;border-radius:24px;background:var(--bar);color:var(--bt);font-weight:600;font-size:14px}
+.ply button.alt{background:var(--card);color:var(--tx);border:1px solid var(--ln)}
+</style>
+</head>
+<body>
+<header>
+  <div class="seg"><button id="mB" class="on">Bíblia</button><button id="mH">Harpa</button></div>
+  <button class="ref" id="ref" aria-label="Escolher livro e capítulo">Carregando…</button>
+  <button class="ib" id="bSearch" aria-label="Buscar">🔍</button>
+  <button class="ib" id="bFav" aria-label="Marcados">★</button>
+  <button class="ib" id="bCfg" aria-label="Ajustes">Aa</button>
+</header>
+<main id="main"><div class="read" id="read"></div></main>
+<nav class="pg"><button id="prev" aria-label="Capítulo anterior">‹</button><button id="next" aria-label="Próximo capítulo">›</button></nav>
+<div class="bar" id="bar"><button data-a="hl">Marcar</button><button data-a="cp">Copiar</button><button data-a="sh">Compartilhar</button><button data-a="x">✕</button></div>
+
+<section class="sheet" id="shNav"><div class="top"><b>Livros</b><button class="ib" data-close>✕</button></div><div class="body">
+  <div class="tabs"><button class="on" data-f="all">Todos</button><button data-f="at">Antigo T.</button><button data-f="nt">Novo T.</button></div>
+  <div id="books" class="grid"></div></div></section>
+<section class="sheet" id="shCh"><div class="top"><button class="ib" id="chBack">‹</button><b id="chTitle"></b><button class="ib" data-close>✕</button></div><div class="body"><div id="chaps" class="grid num"></div></div></section>
+<section class="sheet" id="shSearch"><div class="top"><b>Buscar</b><button class="ib" data-close>✕</button></div><div class="body">
+  <input type="search" id="q" placeholder="Palavra ou frase (ex.: amor, Deus é amor)" autocomplete="off"><div id="results"></div></div></section>
+<section class="sheet" id="shHinos"><div class="top"><b>Harpa Cristã</b><button class="ib" data-close>✕</button></div><div class="body">
+  <input type="search" id="hq" placeholder="Número, título ou trecho da letra" autocomplete="off"><div id="hlist" style="margin-top:10px"></div></div></section>
+<section class="sheet" id="shFav"><div class="top"><b>Versículos marcados</b><button class="ib" data-close>✕</button></div><div class="body" id="favs"></div></section>
+<section class="sheet" id="shCfg"><div class="top"><b>Ajustes</b><button class="ib" data-close>✕</button></div><div class="body">
+  <h3>Tamanho da letra</h3><div class="row"><button id="fm">A−</button><span id="fv" style="text-align:center"></span><button id="fp">A+</button></div>
+  <h3>Tema</h3><div class="row" id="themes"><button data-t="light">Claro</button><button data-t="sepia">Sépia</button><button data-t="dark">Escuro</button></div>
+  <h3>Sobre</h3><p style="color:var(--dim);font-size:14px;line-height:1.6">Bíblia Almeida Corrigida Fiel. Funciona sem internet e sem anúncios. Toque em um versículo para marcar, copiar ou compartilhar. No celular, use “Adicionar à tela inicial” para instalar.</p>
+</div></section>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s),LS=localStorage;
+const get=(k,d)=>{try{const v=LS.getItem(k);return v?JSON.parse(v):d}catch{return d}};
+const set=(k,v)=>{try{LS.setItem(k,JSON.stringify(v))}catch{}};
+let H=[],mode=get('mode','b'),hp=get('hpos',1),hfav=get('hfav',{}),B=[],st=get('pos',{b:42,c:0}),fs=get('fs',20),theme=get('theme','light'),marks=get('marks',{}),selV=null;
+const key=(b,c,v)=>b+'.'+c+'.'+v;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),1600)}
+function applyCfg(){document.documentElement.dataset.t=theme;document.documentElement.style.setProperty('--fs',fs+'px');$('#fv').textContent=fs+' px';
+  document.querySelectorAll('#themes button').forEach(b=>b.classList.toggle('on',b.dataset.t===theme));
+  document.querySelector('meta[name=theme-color]').content=getComputedStyle(document.documentElement).getPropertyValue('--bar').trim()}
+function render(scrollTop=true){if(mode=='h')return renderH(scrollTop);
+  const b=B[st.b],ch=b.c[st.c];$('#ref').textContent=b.n+' '+(st.c+1)+' ▾';
+  $('#read').innerHTML='<h2>'+b.n+' '+(st.c+1)+'</h2>'+ch.map((t,i)=>`<span class="v${marks[key(st.b,st.c,i)]?' h':''}" data-i="${i}"><sup>${i+1}</sup>${t}</span>`).join('');
+  hideBar();if(scrollTop)$('#main').scrollTop=0;set('pos',st);document.title=b.n+' '+(st.c+1)+' · Bíblia Clean'}
+function go(b,c,v){st={b,c};render(v==null);closeAll();if(v!=null){const e=document.querySelector(`.v[data-i="${v}"]`);if(e){e.scrollIntoView({block:'center'});e.classList.add('sel');setTimeout(()=>e.classList.remove('sel'),1800)}}}
+function step(d){if(mode=='h')return stepH(d);let{b,c}=st;c+=d;if(c<0){if(b==0)return;b--;c=B[b].c.length-1}else if(c>=B[b].c.length){if(b==65)return;b++;c=0}go(b,c)}
+function closeAll(){document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('on'))}
+function open(id){closeAll();$(id).classList.add('on')}
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeAll);
+// livros e capítulos
+function drawBooks(f='all'){$('#books').innerHTML=B.map((b,i)=>(f=='all'||(f=='at'&&i<39)||(f=='nt'&&i>=39))?`<button data-b="${i}">${b.n}</button>`:'').join('')}
+$('#books').onclick=e=>{const i=e.target.dataset.b;if(i==null)return;pickBook(+i)};
+let pb=0;function pickBook(i){pb=i;$('#chTitle').textContent=B[i].n;$('#chaps').innerHTML=B[i].c.map((_,k)=>`<button data-c="${k}">${k+1}</button>`).join('');open('#shCh')}
+$('#chaps').onclick=e=>{const c=e.target.dataset.c;if(c!=null)go(pb,+c)};
+$('#chBack').onclick=()=>open('#shNav');
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');drawBooks(b.dataset.f)});
+$('#ref').onclick=()=>open(mode=='h'?'#shHinos':'#shNav');
+$('#prev').onclick=()=>step(-1);$('#next').onclick=()=>step(1);
+// seleção de versículo
+function hideBar(){selV=null;$('#bar').classList.remove('on');document.querySelectorAll('.v.sel').forEach(e=>e.classList.remove('sel'))}
+$('#read').onclick=e=>{const v=e.target.closest('.v');if(!v){hideBar();return}hideBar();selV=+v.dataset.i;v.classList.add('sel');$('#bar').classList.add('on')};
+const vTxt=()=>`${B[st.b].c[st.c][selV]} — ${B[st.b].n} ${st.c+1}:${selV+1}`;
+$('#bar').onclick=async e=>{const a=e.target.dataset.a;if(!a)return;
+  if(a=='hl'){const k=key(st.b,st.c,selV);marks[k]?delete marks[k]:marks[k]=1;set('marks',marks);toast(marks[k]?'Marcado':'Marca removida');render(false)}
+  if(a=='cp'){try{await navigator.clipboard.writeText(vTxt());toast('Copiado')}catch{toast('Não foi possível copiar')}hideBar()}
+  if(a=='sh'){if(navigator.share)navigator.share({text:vTxt()}).catch(()=>{});else{try{await navigator.clipboard.writeText(vTxt());toast('Copiado')}catch{}}hideBar()}
+  if(a=='x')hideBar()};
+// busca
+const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+let idx=null,qt;
+function buildIdx(){idx=[];B.forEach((b,bi)=>b.c.forEach((c,ci)=>c.forEach((t,vi)=>idx.push([bi,ci,vi,norm(t)]))))}
+$('#bSearch').onclick=()=>{if(mode=='h'){open('#shHinos');drawH();$('#hq').focus()}else{open('#shSearch');$('#q').focus()}};
+$('#q').oninput=()=>{clearTimeout(qt);qt=setTimeout(()=>{
+  const q=norm($('#q').value.trim());const R=$('#results');if(q.length<3){R.innerHTML='<div class="empty">Digite ao menos 3 letras</div>';return}
+  if(!idx)buildIdx();const words=q.split(/\s+/);const out=[];
+  for(const x of idx){if(words.every(w=>x[3].includes(w))){out.push(x);if(out.length>=150)break}}
+  if(!out.length){R.innerHTML='<div class="empty">Nada encontrado</div>';return}
+  const re=new RegExp('('+words.map(w=>w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')','gi');
+  R.innerHTML=out.map(x=>{const t=B[x[0]].c[x[1]][x[2]];return `<div class="res" data-r="${x[0]},${x[1]},${x[2]}"><b>${B[x[0]].n} ${x[1]+1}:${x[2]+1}</b>${t.replace(/[&<>]/g,'').replace(re,'<mark>$1</mark>')}</div>`}).join('')+(out.length>=150?'<div class="empty">Mostrando os 150 primeiros</div>':'')},200)};
+$('#results').onclick=e=>{const r=e.target.closest('.res');if(r){const[a,b,c]=r.dataset.r.split(',').map(Number);go(a,b,c)}};
+// marcados
+$('#bFav').onclick=()=>{if(mode=='h')return showHFav();const ks=Object.keys(marks);$('#favs').innerHTML=ks.length?ks.map(k=>{const[b,c,v]=k.split('.').map(Number);return `<div class="res" data-r="${b},${c},${v}"><b>${B[b].n} ${c+1}:${v+1}</b>${B[b].c[c][v]}</div>`}).join(''):'<div class="empty">Nenhum versículo marcado ainda.<br>Toque em um versículo e escolha “Marcar”.</div>';open('#shFav')};
+$('#favs').onclick=e=>{const r=e.target.closest('.res');if(r){const[a,b,c]=r.dataset.r.split(',').map(Number);go(a,b,c)}};
+// ajustes
+$('#bCfg').onclick=()=>open('#shCfg');
+$('#fm').onclick=()=>{fs=Math.max(14,fs-2);set('fs',fs);applyCfg()};$('#fp').onclick=()=>{fs=Math.min(36,fs+2);set('fs',fs);applyCfg()};
+$('#themes').onclick=e=>{const t=e.target.dataset.t;if(t){theme=t;set('theme',t);applyCfg()}};
+// gestos e teclado
+let sx=0,sy=0;const m=$('#main');
+m.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+m.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>80&&Math.abs(dy)<50)step(dx<0?1:-1)},{passive:true});
+document.addEventListener('keydown',e=>{if(e.target.tagName=='INPUT')return;if(e.key=='ArrowRight')step(1);if(e.key=='ArrowLeft')step(-1);if(e.key=='Escape'){closeAll();hideBar()};if(e.key=='/'){e.preventDefault();$('#bSearch').click()}});
+// ---- Harpa Cristã ----
+const pad=n=>String(n).padStart(3,'0'),esc=t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function hymn(n){return H[n-1]}
+function renderH(scrollTop=true){const h=hymn(hp);
+  $('#ref').textContent='Harpa '+h.n+' ▾';document.title='Harpa '+h.n+' · Bíblia Clean';
+  const co=h.c?`<div class="co"><div class="lb">CORO</div>${esc(h.c)}</div>`:'';
+  const body=h.v.map((v,i)=>`<div class="st"><div class="lb" style="color:var(--dim)">${i+1}</div>${esc(v)}</div>`+(i==0?co:'')).join('');
+  $('#read').innerHTML=`<div class="hymn"><h2>${h.n} — ${esc(h.t)}</h2>
+  <div class="ply"><button class="alt" id="pFav">${hfav[h.n]?'★ Favorito':'☆ Favoritar'}</button></div>${body}</div>`;
+  if(scrollTop)$('#main').scrollTop=0;set('hpos',hp);
+  $('#pFav').onclick=()=>{hfav[h.n]?delete hfav[h.n]:hfav[h.n]=1;set('hfav',hfav);renderH(false);toast(hfav[h.n]?'Favoritado':'Removido')};
+}
+function stepH(d){const n=hp+d;if(n<1||n>H.length)return;hp=n;renderH()}
+function goH(n){hp=n;closeAll();setMode('h',true)}
+function drawH(){const q=norm($('#hq').value.trim());let L=H;
+  if(q){const num=/^\d+$/.test(q)?+q:null;L=H.filter(h=>(num!=null&&h.n==num)||norm(h.t).includes(q)||(q.length>=4&&norm(h.c+' '+h.v.join(' ')).includes(q)))}
+  $('#hlist').innerHTML=L.slice(0,200).map(h=>`<div class="res hn" data-h="${h.n}"><i>${h.n}</i><span>${esc(h.t)}${hfav[h.n]?' ★':''}</span></div>`).join('')||'<div class="empty">Nada encontrado</div>'}
+$('#hq').oninput=()=>{clearTimeout(qt);qt=setTimeout(drawH,150)};
+$('#hlist').onclick=e=>{const r=e.target.closest('[data-h]');if(r)goH(+r.dataset.h)};
+function showHFav(){const ks=Object.keys(hfav).map(Number).sort((a,b)=>a-b);$('#favs').innerHTML=ks.length?ks.map(n=>`<div class="res hn" data-h="${n}"><i>${n}</i><span>${esc(hymn(n).t)}</span></div>`).join(''):'<div class="empty">Nenhum hino favorito ainda.</div>';open('#shFav')}
+const oldFav=$('#favs').onclick;$('#favs').onclick=e=>{const r=e.target.closest('[data-h]');if(r)return goH(+r.dataset.h);oldFav(e)};
+async function loadH(){if(!H.length)H=await (await fetch('harpa.json')).json()}
+function setMode(m,force){if(m==mode&&!force)return;mode=m;set('mode',m);
+  $('#mB').classList.toggle('on',m=='b');$('#mH').classList.toggle('on',m=='h');hideBar();
+  if(m=='h'){H.length?renderH():loadH().then(()=>renderH())}else if(B.length)render(false)}
+$('#mB').onclick=()=>setMode('b');$('#mH').onclick=()=>setMode('h');
+// início
+applyCfg();
+fetch('bible.json').then(r=>r.json()).then(j=>{B=j;if(!B[st.b]||!B[st.b].c[st.c])st={b:42,c:0};drawBooks();$('#mB').classList.toggle('on',mode=='b');$('#mH').classList.toggle('on',mode=='h');if(mode=='h')loadH().then(()=>renderH(false));else render(false)}).catch(()=>{$('#read').innerHTML='<p class="empty">Não foi possível carregar o texto. Abra o app por um servidor (veja LEIA-ME).</p>'});
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
